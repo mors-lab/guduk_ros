@@ -1,17 +1,17 @@
 #include <ros/ros.h>
-#include <turtlesim/Velocity.h>
+#include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>
 
 
-class TeleopTurtle
+class GudukJoyTeleop
 {
 public:
-  TeleopTurtle();
+  GudukJoyTeleop();
 
 private:
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
 
-  ros::NodeHandle nh_;
+  ros::NodeHandle ph_, nh_;
 
   int linear_, angular_;
   double l_scale_, a_scale_;
@@ -21,8 +21,8 @@ private:
 };
 
 
-TeleopTurtle::TeleopTurtle():
-  linear_(1),
+GudukJoyTeleop::GudukJoyTeleop():
+  linear_(3),
   angular_(2)
 {
 
@@ -31,27 +31,25 @@ TeleopTurtle::TeleopTurtle():
   nh_.param("scale_angular", a_scale_, a_scale_);
   nh_.param("scale_linear", l_scale_, l_scale_);
 
-
-  vel_pub_ = nh_.advertise<turtlesim::Velocity>("turtle1/command_velocity", 1);
-
-
-  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &TeleopTurtle::joyCallback, this);
+  vel_pub_ = nh_.advertise<geometry_msgs::Twist>("guduk/cmd_vel", 1, true);
+  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &GudukJoyTeleop::joyCallback, this);
 
 }
 
-void TeleopTurtle::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
+void GudukJoyTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
-  turtlesim::Velocity vel;
-  vel.angular = a_scale_*joy->axes[angular_];
-  vel.linear = l_scale_*joy->axes[linear_];
-  vel_pub_.publish(vel);
+
+  geometry_msgs::Twist vel_;
+  vel_.angular.z = 400*joy->axes[angular_];
+  vel_.linear.x = 400*joy->axes[linear_];
+  vel_pub_.publish(vel_);
 }
 
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "teleop_turtle");
-  TeleopTurtle teleop_turtle;
+  ros::init(argc, argv, "joy_teleop");
+  GudukJoyTeleop teleop;
 
   ros::spin();
 }
