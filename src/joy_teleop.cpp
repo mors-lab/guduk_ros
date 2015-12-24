@@ -1,6 +1,9 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>
+#include <std_msgs/MultiArrayLayout.h>
+#include <std_msgs/MultiArrayDimension.h>
+#include <std_msgs/Int16MultiArray.h>
 
 
 class GudukJoyTeleop
@@ -15,6 +18,7 @@ private:
 
   int linear_, angular_;
   double l_scale_, a_scale_;
+  int rightMotorSpeed, leftMotorSpeed;
   ros::Publisher vel_pub_;
   ros::Subscriber joy_sub_;
 
@@ -31,7 +35,7 @@ GudukJoyTeleop::GudukJoyTeleop():
   nh_.param("scale_angular", a_scale_, a_scale_);
   nh_.param("scale_linear", l_scale_, l_scale_);
 
-  vel_pub_ = nh_.advertise<geometry_msgs::Twist>("guduk/cmd_vel", 1, true);
+  vel_pub_ = nh_.advertise<std_msgs::Int16MultiArray>("guduk/cmd_vel", 1, true);
   joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &GudukJoyTeleop::joyCallback, this);
 
 }
@@ -39,7 +43,9 @@ GudukJoyTeleop::GudukJoyTeleop():
 void GudukJoyTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
 
-  geometry_msgs::Twist vel_;
+  // geometry_msgs::Twist vel_;
+  std_msgs::Int16MultiArray motorSpeeds;
+  motorSpeeds.data.clear();
 
 
   if (joy->axes[linear_] == 0 && joy->axes[angular_] > 0) {
@@ -54,8 +60,12 @@ void GudukJoyTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
     rightMotorSpeed = 400*joy->axes[linear_];
     leftMotorSpeed = 400*joy->axes[linear_];
   }
-  
-  vel_pub_.publish(vel_);
+  // motorSpeeds[0].label = "right";
+  // motorSpeeds[0].data = rightMotorSpeed;
+  // motorSpeeds[1].label = "left";
+  // motorSpeeds[1].data = leftMotorSpeed;
+
+  vel_pub_.publish(motorSpeeds);
 }
 
 

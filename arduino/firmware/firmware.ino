@@ -1,7 +1,9 @@
 // ros libs
 #include <ros.h>
 #include <std_msgs/UInt16.h>
-#include <geometry_msgs/Twist.h>
+#include <std_msgs/MultiArrayLayout.h>
+#include <std_msgs/MultiArrayDimension.h>
+#include <std_msgs/Int16MultiArray.h>
 
 // other libs
 #include "DualVNH5019MotorShield.h"
@@ -10,28 +12,19 @@ DualVNH5019MotorShield md;
 
 ros::NodeHandle  nh;
 
-float rightMotorSpeed = 0;
-float leftMotorSpeed = 0;
+int rightMotorVel = 0;
+int leftMotorVel = 0;
 
-void driveMotorsCb( const geometry_msgs::Twist& cmd_vel){
+void driveMotorsCb(const std_msgs::Int16MultiArray& motorVels){
 
-  if (cmd_vel.linear.x == 0 && cmd_vel.angular.z > 0) {
-    rightMotorSpeed = 400*cmd_vel.angular.z;
-    leftMotorSpeed = 400*(1 - cmd_vel.angular.z);
-  }
-  else  if (cmd_vel.linear.x == 0 && cmd_vel.angular.z < 0) {
-    /* code */
-  }
+  rightMotorVel = motorVels[0];
+  leftMotorVel = motorVels[1];
 
-  else if (cmd_vel.linear.x != 0 && cmd_vel.angular.z == 0) {
-    rightMotorSpeed = 400*cmd_vel.linear.x;
-    leftMotorSpeed = 400*cmd_vel.linear.x;
-  }
-
+  
 }
 
 
-ros::Subscriber<geometry_msgs::Twist> sub("/guduk/cmd_vel", driveMotorsCb);
+ros::Subscriber<std_msgs::Int16MultiArray> sub("/guduk/cmd_vel", driveMotorsCb);
 
 void setup(){
 
@@ -44,8 +37,8 @@ void setup(){
 }
 
 void loop(){
-  md.setM1Speed(leftMotorSpeed);
-  md.setM2Speed(rightMotorSpeed);
+  // md.setM1Speed(leftMotorSpeed);
+  // md.setM2Speed(rightMotorSpeed);
   nh.spinOnce();
   delay(1);
 }
