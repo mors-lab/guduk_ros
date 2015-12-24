@@ -14,8 +14,19 @@ float rightMotorSpeed = 0;
 float leftMotorSpeed = 0;
 
 void driveMotorsCb( const geometry_msgs::Twist& cmd_vel){
-  rightMotorSpeed = cmd_vel.linear.x;
-  leftMotorSpeed = cmd_vel.linear.x;
+
+  if (cmd_vel.linear.x == 0 && cmd_vel.angular.z > 0) {
+    rightMotorSpeed = 400*cmd_vel.angular.z;
+    leftMotorSpeed = 400*(1 - cmd_vel.angular.z);
+  }
+  else  if (cmd_vel.linear.x == 0 && cmd_vel.angular.z < 0) {
+    /* code */
+  }
+
+  else if (cmd_vel.linear.x != 0 && cmd_vel.angular.z == 0) {
+    rightMotorSpeed = 400*cmd_vel.linear.x;
+    leftMotorSpeed = 400*cmd_vel.linear.x;
+  }
 
 }
 

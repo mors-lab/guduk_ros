@@ -1,0 +1,8 @@
+<launch>
+  <node name="guduk_serial" pkg="rosserial_python" type="serial_node.py" args="/dev/ttyACM0" />
+  <node name="guduk_joy" pkg="joy" type="joy_node"/>
+  <node name="guduk_joy_teleop" pkg="guduk_ros" type="joy_teleop"/>
+
+
+
+</launch>

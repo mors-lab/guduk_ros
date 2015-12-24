@@ -40,8 +40,21 @@ void GudukJoyTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 {
 
   geometry_msgs::Twist vel_;
-  vel_.angular.z = 400*joy->axes[angular_];
-  vel_.linear.x = 400*joy->axes[linear_];
+
+
+  if (joy->axes[linear_] == 0 && joy->axes[angular_] > 0) {
+    rightMotorSpeed = 400*joy->axes[angular_];
+    leftMotorSpeed = 400*(1 - joy->axes[angular_]);
+  }
+  else  if (joy->axes[linear_] == 0 && joy->axes[angular_] < 0) {
+    /* code */
+  }
+
+  else if (joy->axes[linear_] != 0 && joy->axes[angular_] == 0) {
+    rightMotorSpeed = 400*joy->axes[linear_];
+    leftMotorSpeed = 400*joy->axes[linear_];
+  }
+  
   vel_pub_.publish(vel_);
 }
 
